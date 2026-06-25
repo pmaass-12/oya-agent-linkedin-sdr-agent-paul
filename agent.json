@@ -299,7 +299,28 @@
       "config": {}
     }
   ],
-  "gateways": [],
+  "gateways": [
+    {
+      "platform": "gmail",
+      "name": "Gmail \u2014 paul@tryshow.io",
+      "is_active": true
+    },
+    {
+      "platform": "google-calendar",
+      "name": "Google Calendar \u2014 paul@tryshow.io",
+      "is_active": true
+    },
+    {
+      "platform": "linkedin",
+      "name": "LinkedIn \u2014 Paul Maass",
+      "is_active": true
+    },
+    {
+      "platform": "hunter",
+      "name": "Hunter.io Gateway",
+      "is_active": true
+    }
+  ],
   "routines": [
     {
       "name": "Daily SDR Outreach Run",
