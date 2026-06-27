@@ -285,7 +285,7 @@
     {
       "skill_id": "slack-send-message",
       "name": "Slack Send Message",
-      "description": "Send a message to a Slack thread",
+      "description": "Send a message to a Slack channel (top-level) or thread",
       "skill_type": "sandbox",
       "category": "communication",
       "catalog_type": "platform",
@@ -324,23 +324,18 @@
       "is_active": true
     },
     {
-      "platform": "hunter",
-      "name": "Hunter.io Gateway",
-      "is_active": true
-    },
-    {
       "platform": "slack",
       "name": "Slack \u2014 Show.IO",
       "is_active": true
     },
     {
-      "platform": "gmail",
-      "name": "Gmail \u2014 paul@tryshow.io",
+      "platform": "google-calendar",
+      "name": "Google Calendar \u2014 paul@tryshow.io",
       "is_active": true
     },
     {
-      "platform": "google-calendar",
-      "name": "Google Calendar \u2014 paul@tryshow.io",
+      "platform": "gmail",
+      "name": "Gmail \u2014 paul@tryshow.io",
       "is_active": true
     }
   ],

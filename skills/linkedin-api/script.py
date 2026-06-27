@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import httpx
 
 UNIPILE_DSN = os.environ.get("UNIPILE_DSN", "").rstrip("/")
@@ -162,10 +163,30 @@ def do_react(post_id, reaction_type="like"):
     }
 
 
+def _normalize_identifier(identifier):
+    """Accept a public identifier, a provider_id (ACo...), or any form of
+    LinkedIn profile URL and return the bare identifier Unipile expects.
+
+    The agent often passes a full/partial URL (e.g. ``linkedin.com/in/jane-doe``
+    or ``https://www.linkedin.com/in/jane-doe/``). Passed through verbatim it
+    becomes ``/api/v1/users/linkedin.com/in/jane-doe`` → HTTP 404. Extract the
+    ``/in/<slug>`` segment, otherwise strip scheme/host/query so a clean slug
+    or provider_id is left."""
+    ident = (identifier or "").strip()
+    if not ident:
+        return ident
+    m = re.search(r"/in/([^/?#]+)", ident)
+    if m:
+        return m.group(1)
+    ident = re.sub(r"^https?://", "", ident, flags=re.I)
+    ident = re.sub(r"^([a-z0-9-]+\.)?linkedin\.com/+", "", ident, flags=re.I)
+    return ident.strip("/").split("?")[0].split("#")[0]
+
+
 def do_get_user(identifier):
     if not identifier:
         return {"error": "identifier is required for get_user (username or profile URL)"}
-    data = api_get(f"api/v1/users/{identifier.strip()}")
+    data = api_get(f"api/v1/users/{_normalize_identifier(identifier)}")
     return {
         "name": (data.get("first_name", "") + " " + data.get("last_name", "")).strip(),
         "public_identifier": data.get("public_identifier", ""),
