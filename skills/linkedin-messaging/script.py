@@ -147,8 +147,11 @@ def run(action, **kwargs):
 
 
 if __name__ == "__main__":
-    import sys
-    input_data = json.loads(sys.stdin.read()) if not sys.stdin.isatty() else {}
+    # Skill arguments arrive via the INPUT_JSON env var — the sandbox sets it and
+    # does NOT pipe stdin (this is the standard pattern across the catalog).
+    # Reading stdin here returned an empty string, so json.loads crashed with
+    # "Expecting value: line 1 column 1 (char 0)" and the skill never ran.
+    input_data = json.loads(os.environ.get("INPUT_JSON") or "{}")
     action = input_data.pop("action", "list_chats")
     result = run(action, **input_data)
     print(json.dumps(result, indent=2, default=str))

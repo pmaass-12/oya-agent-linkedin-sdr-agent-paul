@@ -196,13 +196,30 @@
       ]
     },
     {
-      "skill_id": "linkedin-messaging--fixed-edb441",
-      "name": "LinkedIn Messaging (Fixed)",
-      "description": "Send and receive LinkedIn messages, manage conversations, and start new DMs via Unipile. Drop-in replacement for the catalog linkedin-messaging skill with correct INPUT_JSON sandbox entry point.",
+      "skill_id": "linkedin-messaging",
+      "name": "LinkedIn Messaging",
+      "description": "Send and receive LinkedIn messages, manage conversations, and prospect via LinkedIn DMs",
       "skill_type": "sandbox",
-      "category": "general",
-      "catalog_type": "addon",
-      "config": {}
+      "category": "messaging",
+      "catalog_type": "platform",
+      "config": {},
+      "resource_requirements": [
+        {
+          "name": "Unipile API Base URL",
+          "env_var": "UNIPILE_DSN",
+          "description": "Unipile REST API endpoint (auto-provided)"
+        },
+        {
+          "name": "Unipile API Key",
+          "env_var": "UNIPILE_API_KEY",
+          "description": "Unipile API authentication key (auto-provided)"
+        },
+        {
+          "name": "Unipile Account ID",
+          "env_var": "UNIPILE_ACCOUNT_ID",
+          "description": "Per-user Unipile account ID (auto-provided by gateway connection)"
+        }
+      ]
     },
     {
       "skill_id": "memory",
@@ -243,7 +260,7 @@
     {
       "skill_id": "showio-crm",
       "name": "showio-crm",
-      "description": "Create or update records in the Show.IO CRM. Use to upsert a LEAD (by email) or an ACCOUNT/company (by name) \u2014 e.g. after researching a prospect, logging a conversation, or enriching a company. Leads are deduped by email and notes are appended (never overwritten); accounts are deduped by company name.\n",
+      "description": "Read or write the Show.IO CRM. Upsert a LEAD (by email) or an ACCOUNT/company (by name) after researching a prospect or enriching a company; or LIST the conferences already tracked in the CRM (action list_conferences) to dedupe against known events. Leads dedupe by email and notes append (never overwrite); accounts dedupe by company name.\n",
       "skill_type": "sandbox",
       "category": "general",
       "catalog_type": "addon",
@@ -329,21 +346,21 @@
   ],
   "routines": [
     {
-      "name": "Daily SDR Outreach Run",
-      "description": "",
-      "schedule_human": "Every weekday at 8am",
-      "schedule_cron": "0 8 * * 1-5",
-      "prompt": "Run the full outbound SDR sequence for Paul:\n1. Use the LinkedIn API skill to search for 10\u201320 new CROs, CMOs, and Event Coordinators matching Paul's ICP. Pull name, title, company, and LinkedIn URL.\n2. For each lead, call Hunter.io to find and verify their business email by company domain. Skip any lead where verification status is not 'valid'.\n3. POST each verified lead to Paul's homegrown CRM with status='new' using the CRM REST API skill.\n4. For each new lead: retrieve the last-used message variant from Agent Memory, run the message rotation skill to compose a personalized outreach message, then send a LinkedIn connection request + DM via LinkedIn Messaging. Save the new variant index back to Agent Memory.\n5. Read all LinkedIn DM inboxes for replies from previously contacted prospects. For any prospect expressing interest or asking about availability:\n   a. Check Paul's Google Calendar for the next 5 open 30-minute slots during business hours.\n   b. Send a LinkedIn DM to the prospect proposing 2\u20133 specific time options.\n   c. Create a tentative Google Calendar event with a Google Meet link for the most likely slot.\n6. For any prospect who has confirmed a time: update the Google Calendar event with their confirmed time and any team members they mention joining. Send a final LinkedIn DM confirming the details and who will be on the call.\n7. Send a single HTML summary email to paul@tryshow.io listing: (a) new leads added to CRM today, (b) messages sent and which variant was used, (c) replies received, (d) meetings booked with prospect name, company, time, and Google Meet link.\n8. PATCH each lead record in the homegrown CRM with updated status ('contacted', 'interested', 'meeting_booked') and any meeting details via REST API.\nIf any step fails for a specific lead, log the error to Agent Memory and continue with the next lead.",
-      "output_channel": "",
-      "is_active": true
-    },
-    {
       "name": "Weekly Outreach Performance Summary",
       "description": "",
       "schedule_human": "Every Monday at 9am",
       "schedule_cron": "0 9 * * 1",
       "prompt": "Generate and email a weekly SDR performance summary to paul@tryshow.io:\n1. Retrieve from Agent Memory all logged activity from the prior 7 days: total leads discovered, enrichment success rate, messages sent per variant, reply rate per variant, meetings booked, meetings confirmed.\n2. Identify the top-performing message variant (highest reply rate) and the lowest-performing variant.\n3. Compose an HTML email with a structured table showing all metrics broken down by persona tier (CRO / CMO / Event Coordinator).\n4. Include a recommendation section: suggest whether Paul should retire any message variant and introduce a new angle based on performance data.\n5. Send the email via Gmail Send to paul@tryshow.io with subject: 'Weekly SDR Report \u2014 [date range]'.",
       "output_channel": "",
+      "is_active": true
+    },
+    {
+      "name": "Daily SDR Outreach Run",
+      "description": "",
+      "schedule_human": "Daily at 7:00 AM",
+      "schedule_cron": "0 11 * * *",
+      "prompt": "You are BDR Max, Paul's outbound SDR. You work in two modes depending on what triggers you.\n\n\u2501\u2501\u2501 MODE 1: PROSPECTING (default daily run) \u2501\u2501\u2501\nPull CRM leads with status='new' via showio-crm \u2192 list_leads. For each lead:\n\n1. COMPOSE A CONNECTION NOTE (under 300 characters \u2014 LinkedIn's limit)\n   Write from Paul's voice. Structure: \"Hi [First name], I'm Paul. I'm a former CRO building a platform that helps [what they do] teams get more ROI from conferences. [One specific, natural observation about their company or role]. I'd love to connect.\"\n\n   Rules for the note:\n   \u2022 Reference what they DO, not their exact title. A Senior Field Marketing Manager is \"deep in the field marketing and events world\" \u2014 not \"a Senior Field Marketing Manager.\"\n   \u2022 Tailor the observation to their company stage, industry, or known conference activity if possible.\n   \u2022 Never be generic. Never use \"I came across your profile.\" Never mirror their title back verbatim.\n   \u2022 Keep it conversational. It should sound like Paul wrote it, not a bot.\n   \u2022 Stay under 300 characters total.\n\n2. POST FOR APPROVAL\n   Call showio-crm \u2192 post_approval with:\n   - lead_name, title, company_name, linkedin_url, proposed_message\n   Then STOP. Do not send anything until Paul approves in Slack.\n\n\u2501\u2501\u2501 MODE 2: SEND (triggered via webhook with source='slack-approval') \u2501\u2501\u2501\nYou receive: action, lead_name, company_name, lead_id, final_message, slack_thread_ts\n\n- action='approved' \u2192 Send LinkedIn connection request with final_message to the lead\n- action='rewritten' \u2192 Send LinkedIn connection request with final_message (Paul's version)\n- action='skipped' \u2192 Call showio-crm \u2192 upsert_lead with lead_id and status='unqualified'. Post \"\u23ed\ufe0f Skipped [lead_name]\" to the thread. Done.\n\nAfter sending a connection request:\n- Call showio-crm \u2192 upsert_lead with status='contacted'\n- Post \"\u2705 Connection request sent to [lead_name] at [company]\" in the Slack thread\n\n\u2501\u2501\u2501 MODE 3: INBOX CHECK (runs separately or on demand) \u2501\u2501\u2501\nRead LinkedIn DM inbox for replies from contacted prospects.\n\n- Prospect expressing interest or asking about timing:\n  1. Check Google Calendar for next 5 open 30-min slots during business hours\n  2. Reply via LinkedIn DM proposing 2\u20133 specific times\n  3. Create a tentative Google Meet event for the most likely slot\n  4. Update lead status to 'interested' in CRM\n\n- Prospect confirms a time:\n  1. Update the Calendar event with confirmed time\n  2. Send LinkedIn DM confirming details and who will be on the call\n  3. Update lead status to 'meeting_booked' in CRM\n\n\u2501\u2501\u2501 RULES \u2501\u2501\u2501\n- Never send email for anything \u2014 all communication goes through Slack or LinkedIn\n- Never send a LinkedIn message without Slack approval first\n- Always check CRM response for {\"ok\": true} \u2014 if you see an error, post it to Slack and stop\n- Never fabricate a person or company detail\n- North America contacts only",
+      "output_channel": "C0BDBQ58D3N",
       "is_active": true
     }
   ],
@@ -359,10 +376,32 @@
         "callback_url": null
       },
       "is_active": true
+    },
+    {
+      "trigger_type": "webhook",
+      "name": "Reply Trigger",
+      "description": "",
+      "config": {
+        "model": null,
+        "secret": "963ecaa08ed6dbd91814d919fa48ce692c975b7f5f12ef63c12b378073f34eca",
+        "agent_prompt": "Process the following webhook payload and respond appropriately:\n\n{payload}",
+        "callback_url": null
+      },
+      "is_active": true
     }
   ],
   "mcp_connections": [],
   "memories": [
+    {
+      "memory_type": "fact",
+      "content": "CRM API returned 401 Unauthorized during outbound sequence on June 26, 2026. Leads could not be logged. Pipeline paused.",
+      "metadata": {}
+    },
+    {
+      "memory_type": "fact",
+      "content": "Hunter.io API returned 401 Unauthorized during outbound sequence on June 26, 2026. Enrichment step failed. Proceeding with LinkedIn URLs as per Rule 7.",
+      "metadata": {}
+    },
     {
       "memory_type": "fact",
       "content": "Error: Hunter.io API returned 401 Unauthorized during enrichment for Annik Wolf and James O'Brien. Error: LinkedIn Messaging not connected. Task paused for Paul's intervention.",
