@@ -337,6 +337,11 @@
       "platform": "gmail",
       "name": "Gmail \u2014 paul@tryshow.io",
       "is_active": true
+    },
+    {
+      "platform": "hunter",
+      "name": "Hunter.IO",
+      "is_active": true
     }
   ],
   "routines": [
