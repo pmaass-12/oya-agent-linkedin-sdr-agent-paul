@@ -37,7 +37,7 @@ tool_schema:
         default: ""
       attendees_ids:
         type: "string"
-        description: "Comma-separated LinkedIn user IDs for start_chat"
+        description: "Recipient for start_chat: a LinkedIn username, profile URL, or provider_id (ACo...). Resolved to a provider_id automatically. Comma-separated for a group chat."
         default: ""
       limit:
         type: "integer"
@@ -58,8 +58,9 @@ Send and receive LinkedIn messages via the Unipile messaging API. Requires Linke
 - **send_message** -- Send a LinkedIn message in an existing conversation. Provide `chat_id` and `text`.
 
 ## Outreach
-- **start_chat** -- Start a new LinkedIn conversation. Provide `attendees_ids` (LinkedIn user ID) and `text`. Requires an existing connection or InMail credits.
+- **start_chat** -- Start a new LinkedIn conversation. Provide `attendees_ids` (a username, profile URL, or provider_id) and `text`. The skill resolves the recipient to a provider_id for you. **You can only message a 1st-degree connection** -- if you are not connected, send a connection request first with the `linkedin-api` skill's `send_connection` action, wait for them to accept, then start the chat. Messaging a non-connection returns "Recipient cannot be reached" (`invalid_recipient`).
 
 ## Notes
 - LinkedIn messaging uses the same Unipile account as LinkedIn posting (no separate auth needed)
 - InMail for non-connections requires a Premium/Sales Navigator account
+- "Recipient cannot be reached" (422 invalid_recipient) means the target is not a 1st-degree connection (send a request first), the profile is locked/restricted (skip it), or the recipient id was resolved under a different connected account
