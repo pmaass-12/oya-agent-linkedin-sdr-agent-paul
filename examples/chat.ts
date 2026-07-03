@@ -1,5 +1,5 @@
 /**
- * Chat with LinkedIn SDR Agent — Paul via TypeScript (OpenAI SDK).
+ * Chat with LinkedIn Connection Agent via TypeScript (OpenAI SDK).
  * npm install openai
  * Run with: npx tsx chat.ts
  */

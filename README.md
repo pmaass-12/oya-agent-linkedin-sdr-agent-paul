@@ -1,4 +1,4 @@
-# LinkedIn SDR Agent — Paul
+# LinkedIn Connection Agent
 
 > Built with [Oya AI](https://oya.ai)
 
@@ -181,7 +181,7 @@ for chunk in stream:
   src="https://oya.ai/widget.js"
   data-agent-id="233f1439-fb00-435b-b1b1-0434977bcfaf"
   data-api-key="a2a_your_key_here"
-  data-title="LinkedIn SDR Agent — Paul"
+  data-title="LinkedIn Connection Agent"
 ></script>
 ```
 

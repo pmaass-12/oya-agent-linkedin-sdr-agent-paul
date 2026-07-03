@@ -1,5 +1,5 @@
 """
-Chat with LinkedIn SDR Agent — Paul via Python (OpenAI SDK).
+Chat with LinkedIn Connection Agent via Python (OpenAI SDK).
 pip install openai
 """
 from openai import OpenAI

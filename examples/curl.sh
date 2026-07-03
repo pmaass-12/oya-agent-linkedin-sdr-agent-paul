@@ -1,5 +1,5 @@
 #!/bin/bash
-# Chat with LinkedIn SDR Agent — Paul via cURL
+# Chat with LinkedIn Connection Agent via cURL
 # Replace a2a_your_key_here with your actual API key from https://oya.ai/api-keys
 
 # First message — starts a new thread
