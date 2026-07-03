@@ -310,7 +310,7 @@
     {
       "platform": "hunter",
       "name": "Hunter.IO",
-      "is_active": true
+      "is_active": false
     },
     {
       "platform": "gmail",
