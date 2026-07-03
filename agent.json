@@ -321,8 +321,8 @@
     {
       "name": "Daily SDR Outreach Run",
       "description": "",
-      "schedule_human": "Daily at 7:00 AM",
-      "schedule_cron": "0 11 * * *",
+      "schedule_human": "Daily at 7:30 AM",
+      "schedule_cron": "30 11 * * *",
       "prompt": "Run Mode 1. Pull unworked leads from the CRM (last action date = blank), \nfilter for the 4 target roles, and post approval cards to Paul in \n#oya-linkedin-bdr via slack-send-message. \n\nPrioritize leads where the account has a next conference date in 2026 \u2014 \nwork these first before any leads without a conference date. Stop at \n15-16 contacts queued or when no unworked leads remain.",
       "output_channel": "C0BDBQ58D3N",
       "is_active": true
