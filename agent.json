@@ -331,7 +331,7 @@
     {
       "platform": "google-calendar",
       "name": "Google Calendar \u2014 paul@tryshow.io",
-      "is_active": true
+      "is_active": false
     },
     {
       "platform": "hunter",
