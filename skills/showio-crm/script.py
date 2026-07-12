@@ -12,6 +12,12 @@ except Exception:
 for _k in ("SHOWIO_API_KEY", "SHOWIO_BASE_URL"):
     if not os.environ.get(_k) and _cfg.get(_k):
         os.environ[_k] = str(_cfg[_k])
+
+# >>> PAUL: paste your real key between the quotes below (the CRM_AGENT_API_KEY value from Show.IO), then Save. <<<
+if not os.environ.get("SHOWIO_API_KEY"):
+    os.environ["SHOWIO_API_KEY"] = "PASTE-YOUR-CRM_AGENT_API_KEY-HERE"
+if not os.environ.get("SHOWIO_BASE_URL"):
+    os.environ["SHOWIO_BASE_URL"] = "https://app.tryshow.io"
 # ---------------------------------------------------------------------------
 # Oya skill: read/write the Show.IO CRM.
 # Reads INPUT_JSON (the agent's call args) and credentials from the env.
