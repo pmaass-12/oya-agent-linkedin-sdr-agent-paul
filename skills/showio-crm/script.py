@@ -4,6 +4,15 @@ import urllib.parse
 import urllib.request
 import urllib.error
 
+# --- credential fallback: also accept key/base-url from the skill config ---
+try:
+    _cfg = json.loads(os.environ.get("SKILL_CONFIG_JSON") or "{}")
+except Exception:
+    _cfg = {}
+for _k in ("SHOWIO_API_KEY", "SHOWIO_BASE_URL"):
+    if not os.environ.get(_k) and _cfg.get(_k):
+        os.environ[_k] = str(_cfg[_k])
+# ---------------------------------------------------------------------------
 # Oya skill: read/write the Show.IO CRM.
 # Reads INPUT_JSON (the agent's call args) and credentials from the env.
 #
@@ -85,8 +94,10 @@ def _coerce_input(raw):
 
 def main():
     inp = _coerce_input(os.environ.get("INPUT_JSON", "{}"))
-    base = os.environ.get("SHOWIO_BASE_URL", "https://app.tryshow.io").rstrip("/")
-    key = os.environ.get("SHOWIO_API_KEY", "")
+    cfg = json.loads(os.environ.get("SKILL_CONFIG_JSON") or "{}")
+    # Credentials can come from env vars (resource_requirements) OR SKILL_CONFIG_JSON
+    base = (os.environ.get("SHOWIO_BASE_URL") or cfg.get("SHOWIO_BASE_URL") or "https://app.tryshow.io").rstrip("/")
+    key = os.environ.get("SHOWIO_API_KEY") or cfg.get("SHOWIO_API_KEY") or ""
     if not key:
         print(json.dumps({"error": "SHOWIO_API_KEY not set"}))
         return
