@@ -9,13 +9,18 @@ try:
     _cfg = json.loads(os.environ.get("SKILL_CONFIG_JSON") or "{}")
 except Exception:
     _cfg = {}
-for _k in ("SHOWIO_API_KEY", "SHOWIO_BASE_URL"):
+# Config may hold a STALE key — only use it for the base URL, never for the API key.
+for _k in ("SHOWIO_BASE_URL",):
     if not os.environ.get(_k) and _cfg.get(_k):
         os.environ[_k] = str(_cfg[_k])
 
+# Accept the key under either name (Oya secret SHOWIO_API_KEY or CRM_AGENT_API_KEY)
+if not os.environ.get("SHOWIO_API_KEY") and os.environ.get("CRM_AGENT_API_KEY"):
+    os.environ["SHOWIO_API_KEY"] = os.environ["CRM_AGENT_API_KEY"]
+
 # >>> PAUL: paste your real key between the quotes below (the CRM_AGENT_API_KEY value from Show.IO), then Save. <<<
 if not os.environ.get("SHOWIO_API_KEY"):
-    os.environ["SHOWIO_API_KEY"] = "PASTE-YOUR-CRM_AGENT_API_KEY-HERE"
+    os.environ["SHOWIO_API_KEY"] = "2b8cdc5fbd2846b0430f57e999c68d4fee06dcd2a56ce4871d021c3ad85a6792"
 if not os.environ.get("SHOWIO_BASE_URL"):
     os.environ["SHOWIO_BASE_URL"] = "https://app.tryshow.io"
 # ---------------------------------------------------------------------------
